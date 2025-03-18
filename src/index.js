@@ -6,7 +6,7 @@ import card from "./Card.js";
 
 // Отвечает является ли карта уткой.
 function isDuck(card) {
-    return card instanceof Duck;
+    return card && card.quacks && card.swims;
 }
 
 // Отвечает является ли карта собакой.
@@ -101,6 +101,24 @@ class Gatling extends Creature {
     }
 }
 
+
+
+class PseudoDuck extends Dog {
+    constructor(name='Псевдоутка', maxPower = 3) {
+        super(name, maxPower);
+    }
+
+
+    quacks() {
+        Duck.prototype.quacks();
+    }
+
+    swims() {
+        Duck.prototype.swims();
+    }
+
+}
+
 class Lad extends Dog {
     constructor(name = 'Браток', maxPower = 2) {
         super(name, maxPower);
@@ -141,12 +159,13 @@ class Lad extends Dog {
 const seriffStartDeck = [
     new Duck(),
     new Duck(),
-    new Duck(),
+
 ];
 const banditStartDeck = [
-    new Lad(),
-    new Lad(),
+    new PseudoDuck()
 ];
+
+
 
 
 // Создание игры.
