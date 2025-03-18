@@ -46,10 +46,12 @@ class Duck extends Creature {
     constructor() {
         super('Мирная утка', 2);
     }
-    quacks(){
+
+    quacks() {
         console.log('quack');
     }
-    swims(){
+
+    swims() {
         console.log('float: both;');
     }
 
@@ -64,14 +66,13 @@ class Dog extends Creature {
 
 }
 
-class Trasher extends Dog{
+class Trasher extends Dog {
     constructor() {
         super('Громила', 5);
     }
 
 
-
-    modifyTakenDamage(actualValue, fromCard, gameContext, continuation){
+    modifyTakenDamage(actualValue, fromCard, gameContext, continuation) {
         //
         this.view.signalAbility(() => continuation(actualValue - 1));
 
@@ -100,16 +101,51 @@ class Gatling extends Creature {
     }
 }
 
+class Lad extends Dog {
+    constructor(name = 'Браток', maxPower = 2) {
+        super(name, maxPower);
+    }
+
+    static getInGameCount() {
+        return this.inGameCount || 0;
+    }
+
+    static setInGameCount(value) {
+        this.inGameCount = value;
+    }
+    static getBonus() { return Lad.getInGameCount() * (Lad.getInGameCount() + 1) / 2 }
+
+    doAfterComingIntoPlay(gameContext, continuation) {
+        const {currentPlayer, oppositePlayer, position, updateView} = gameContext;
+
+        Lad.setInGameCount(Lad.getInGameCount() + 1)
+        continuation();
+    };
+
+    doBeforeRemoving(continuation) {
+        Lad.setInGameCount(Lad.getInGameCount() - 1)
+        continuation();
+    };
+
+    modifyTakenDamage(actualValue, fromCard, gameContext, continuation) {
+
+        continuation(actualValue - Lad.getBonus());
+        console.log(actualValue - Lad.getBonus());
+    };
+    modifyDealedDamageToCreature(value, toCard, gameContext, continuation) {
+        continuation(value + Lad.getBonus());
+        console.log(value + Lad.getBonus());
+    };
+}
+
 const seriffStartDeck = [
     new Duck(),
     new Duck(),
     new Duck(),
-    new Gatling(),
 ];
 const banditStartDeck = [
-    new Trasher(),
-    new Dog(),
-    new Dog(),
+    new Lad(),
+    new Lad(),
 ];
 
 
@@ -117,7 +153,7 @@ const banditStartDeck = [
 const game = new Game(seriffStartDeck, banditStartDeck);
 
 // Глобальный объект, позволяющий управлять скоростью всех анимаций.
-SpeedRate.set(5);
+SpeedRate.set(1);
 
 // Запуск игры.
 game.play(false, (winner) => {
